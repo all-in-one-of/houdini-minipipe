@@ -6,12 +6,24 @@ import unittest
 
 class TestMinipipe(unittest.TestCase):
     def testProject(self):
+        
         hipPath = 'testdata/normalmap.hipnc'
         
         hou.hipFile.load(hipPath)
         
+        # gethipname
         self.assertEqual(project.gethipname(), 'normalmap')
         
+        
+        # getoutpath
+        self.assertEqual(project.getoutpath(hou.node('/out/mantra1'), 24),
+                         'render\\x\\y_v001\\y_v001_0024.exr')
+        
+        self.assertEqual(project.getoutpath(hou.node('/out/mantra1'), 17134, framepadding=6),
+                         'render\\x\\y_v001\\y_v001_017134.exr')
+
+
+
     def testCgeoWriteRead(self):
         hipPath = 'testdata/normalmap.hipnc'
         
@@ -38,6 +50,10 @@ class TestMinipipe(unittest.TestCase):
         data = cgeo.readData(outPath)
         
         self.checkDataAgainstGeo(geo, data)
+
+
+
+
 
     def checkDataAgainstGeo(self, geo, data):
         # compare entity counts
