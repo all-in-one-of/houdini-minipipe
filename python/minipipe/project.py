@@ -2,6 +2,10 @@ import hou
 from os import path
 
 def gethipname():
+    '''
+    Returns the current hip file name without file extension
+    '''
+    
     return path.basename(hou.hipFile.name()).split('.')[0]
 
 def getoutpath(ropnode, frame, framepadding=4):
