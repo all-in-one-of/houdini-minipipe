@@ -27,3 +27,4 @@ def getoutpath(ropnode, frame, framepadding=4):
         outPath = path.join(outPath, entryname + '.' + ext)
     
     return outPath
+
