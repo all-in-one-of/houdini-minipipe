@@ -56,7 +56,10 @@ class TestCgeo(unittest.TestCase):
             
             self.assertTrue(attrib != None, "attrib %s doesn't exist in original geometry" % attribName)
             
+            self.assertEqual(attribSize, attrib.size())
+            
             for offset, p in enumerate(geo.points()):
                 value = p.attribValue(attrib)
                 for i in range(attribSize):
-                    self.assertAlmostEqual(value[i], attribData[offset * attribSize + i])
+                    self.assertEqual(value[i], attribData[offset * attribSize + i])
+
