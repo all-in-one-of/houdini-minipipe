@@ -59,6 +59,13 @@ def writeGeo(geo, outpath, attribs=None, version=2):
                 f.write(struct.pack('>%ds' % MAX_ATTRIBNAME_LEN, attribName))
                 f.write(struct.pack('>i', attribSize))
             
+            for p in prims:
+                verts = p.vertices()
+                if len(verts) != 3:
+                    raise hou.Error('Non-Triangle primitive found')
+            
+                f.write(struct.pack('>HHH', verts[0].point().number(), verts[1].point().number(), verts[2].point().number()))
+                
             for attrib in writeAttribs:
                 for p in points:
                     
@@ -70,7 +77,7 @@ def writeGeo(geo, outpath, attribs=None, version=2):
                         f.write(struct.pack('>f', value))
 
 
-def readGeo(inpath):
+def readData(inpath):
     """
     test
     """
@@ -79,6 +86,7 @@ def readGeo(inpath):
         size = struct.calcsize(headerPacking)
         
         numPoints, numPrims, numAttribs = struct.unpack(headerPacking, f.read(size))
+        numIndices = 3 * numPrims
         
 #        print numPoints, numPrims, numAttribs
         
@@ -86,16 +94,30 @@ def readGeo(inpath):
         attribName = [None, ] * numAttribs
         attribSize = [0, ] * numAttribs
         attribData = [None, ] * numAttribs
-
+        
+        
         for i in range(numAttribs):
             attribPacking = ">%dsi" % MAX_ATTRIBNAME_LEN
             size = struct.calcsize(attribPacking)
             attribName[i], attribSize[i] = struct.unpack(attribPacking, f.read(size))
             attribName[i] = attribName[i].rstrip(' \t\r\n\0')
-            print attribName[i]
-        
+#            print attribName[i]
+
+        dataPacking = ">%dH" % numIndices
+        size = struct.calcsize(dataPacking)
+        vertIndices = struct.unpack(dataPacking, f.read(size))
+
         for i in range(numAttribs):
             dataPacking = ">%df" % (numPoints * attribSize[i])
             size = struct.calcsize(dataPacking)
-            data = struct.unpack(dataPacking, f.read(size)) 
-            print data
+            attribData[i] = struct.unpack(dataPacking, f.read(size)) 
+            
+    return {
+            'num_points': numPoints,
+            'num_prims': numPrims,
+            'num_attribs': numAttribs,
+            'indicies': vertIndices,
+            'attrib_names': attribName,
+            'attrib_sizes': attribSize,
+            'attrib_data': attribData 
+            }
